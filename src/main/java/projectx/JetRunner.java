@@ -6,12 +6,14 @@ import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.config.JetConfig;
-import com.hazelcast.jet.pipeline.Pipeline;
 import serializer.PriorityQueueSerializer;
 
 import java.io.File;
+import java.util.List;
 import java.util.PriorityQueue;
+import java.util.stream.IntStream;
 
+import static java.util.stream.Collectors.toList;
 import static projectx.LicenseKey.LICENSE_KEY;
 
 public class JetRunner {
@@ -37,12 +39,15 @@ public class JetRunner {
     public static JetInstance startJet() {
         System.setProperty("hazelcast.logging.type", "log4j");
         System.setProperty("hazelcast.partition.count", String.valueOf(PARTITION_COUNT));
-        JetInstance jet = Jet.newJetInstance(config(1));
-        Jet.newJetInstance(config(2));
-        return jet;
+        List<JetInstance> jets = IntStream.rangeClosed(1, 2)
+                                          .parallel()
+                                          .mapToObj(i -> Jet.newJetInstance(config(i)))
+                                          .collect(toList());
+        return jets.get(0);
     }
 
     public static void main(String[] args) {
         startJet();
+        
     }
 }
