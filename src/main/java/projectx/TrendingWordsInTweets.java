@@ -1,5 +1,7 @@
 package projectx;
 
+import com.hazelcast.config.Config;
+import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.IMap;
 import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.JetInstance;
@@ -9,12 +11,14 @@ import com.hazelcast.jet.datamodel.TimestampedEntry;
 import com.hazelcast.jet.datamodel.TimestampedItem;
 import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.StreamStage;
+import serializer.PriorityQueueSerializer;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.PriorityQueue;
 
 import static com.hazelcast.jet.Traversers.traverseArray;
 import static com.hazelcast.jet.Util.entry;
@@ -48,10 +52,9 @@ public class TrendingWordsInTweets {
         System.setProperty("hazelcast.partition.count", String.valueOf(partitionCount));
 
         Pipeline pipeline = buildPipeline();
-
-        JetConfig cfg = new JetConfig();
-        cfg.getHazelcastConfig().getMapEventJournalConfig(TWEETS).setEnabled(true);
+        JetConfig cfg = config();
         JetInstance jet = Jet.newJetInstance(cfg);
+        Jet.newJetInstance(cfg);
 
         loadStopwordsIntoIMap(jet);
         TweetPublisher publisher = new TweetPublisher(SAMPLES_HOME + "/books", jet, partitionCount);
@@ -67,6 +70,17 @@ public class TrendingWordsInTweets {
             gui.shutdown();
             Jet.shutdownAll();
         }
+    }
+
+    private static JetConfig config() {
+        JetConfig cfg = new JetConfig();
+        Config hzCfg = cfg.getHazelcastConfig();
+        hzCfg.getMapEventJournalConfig(TWEETS).setEnabled(true);
+        hzCfg.getSerializationConfig().addSerializerConfig(
+                new SerializerConfig()
+                        .setImplementation(new PriorityQueueSerializer())
+                        .setTypeClass(PriorityQueue.class));
+        return cfg;
     }
 
     static Pipeline buildPipeline() {
@@ -93,7 +107,7 @@ public class TrendingWordsInTweets {
 
         StreamStage<TimestampedEntry<String, Long>> wordFrequencies = words
                 .window(sliding(10_000, 100))
-                .groupingKey(wholeItem())
+                .addKey(wholeItem())
                 .aggregate(counting());
 
         // {10:23:10.0, "age", 2}, {10:23:10.0, "wisdom", 1}, {10:23:10.0, "foolishness", 1},

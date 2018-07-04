@@ -3,7 +3,6 @@ package projectx;
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.Member;
 import com.hazelcast.core.Partition;
 import com.hazelcast.core.PartitionService;
 import com.hazelcast.jet.JetInstance;
@@ -105,7 +104,7 @@ class TweetPublisher extends Thread {
                         accumulateFn.accept(a1, t);
                     }
                 })
-                .andFinish(a -> {
+                .andExportFinish(a -> {
                     ArrayList<T> res = new ArrayList<>(a);
                     res.sort(comparatorReversed);
                     return res;
