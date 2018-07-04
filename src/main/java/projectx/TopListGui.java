@@ -1,6 +1,8 @@
 package projectx;
 
+import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.core.IMap;
+import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.datamodel.TimestampedItem;
 
 import javax.swing.*;
@@ -10,11 +12,12 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import static datamodel.Constants.PUBLISH_KEY;
 import static java.awt.EventQueue.invokeLater;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.partitioningBy;
-import static java.util.stream.Collectors.toMap;
-import static projectx.TrendingWordsInTweets.PUBLISH_KEY;
+import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
+import static projectx.JetRunner.JET;
+import static datamodel.Constants.TOP_LIST;
 
 class TopListGui {
     private static final int WINDOW_X = 600;
@@ -23,21 +26,21 @@ class TopListGui {
     private static final int WINDOW_HEIGHT = 650;
 
     private final IMap<Object, TimestampedItem<List<String>>> topList;
-    private Timer timer;
-    private JFrame frame;
 
     TopListGui(IMap<Object, TimestampedItem<List<String>>> topList) {
         this.topList = topList;
         invokeLater(this::buildFrame);
     }
 
-    void shutdown() {
-        timer.stop();
-        frame.dispose();
+    public static void main(String[] args) {
+        ClientConfig cfg = new ClientConfig();
+        cfg.getGroupConfig().setName(JET);
+        new TopListGui(Jet.newJetClient(cfg).getMap(TOP_LIST));
     }
 
     private void buildFrame() {
-        frame = new JFrame();
+        JFrame frame = new JFrame();
+        frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
         frame.setBackground(Color.WHITE);
         frame.setTitle("Hazelcast Jet - Trending Words in Tweets");
         frame.setBounds(WINDOW_X, WINDOW_Y, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -51,14 +54,14 @@ class TopListGui {
         mainPanel.add(output, BorderLayout.CENTER);
         output.setFont(output.getFont().deriveFont(18f));
         DateFormat df = new SimpleDateFormat("HH:mm:ss.SSS");
-        timer = new Timer(100, e -> {
+        Timer timer = new Timer(100, e -> {
             TimestampedItem<List<String>> timestampedTopList = topList.get(PUBLISH_KEY);
             if (timestampedTopList == null) {
                 return;
             }
             output.setText(
                     df.format(timestampedTopList.timestamp()) + "\n\n" +
-                    timestampedTopList.item().stream().collect(joining("\n")));
+                            timestampedTopList.item().stream().collect(joining("\n")));
         });
         timer.start();
         frame.setVisible(true);

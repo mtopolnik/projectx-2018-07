@@ -3,6 +3,6 @@ target
 *.iml
 *.ipr
 *.iws
-src/main/java/projectx/LicenseKey.java
 jet-hot-restart*
 /.idea
+common/src/main/java/datamodel/LicenseKey.java

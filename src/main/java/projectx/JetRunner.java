@@ -1,7 +1,6 @@
 package projectx;
 
 import com.hazelcast.config.Config;
-import com.hazelcast.config.HotRestartPersistenceConfig;
 import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.JetInstance;
@@ -14,26 +13,28 @@ import java.util.PriorityQueue;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toList;
-import static projectx.LicenseKey.LICENSE_KEY;
+import static datamodel.LicenseKey.LICENSE_KEY;
 
 public class JetRunner {
     static final String TWEETS = "tweets";
+    static final String JET = "jet";
     static final int PARTITION_COUNT = 271;
 
     static JetConfig config(int instanceId) {
-        JetConfig cfg = new JetConfig();
-        Config hzCfg = cfg.getHazelcastConfig();
-        hzCfg.setLicenseKey(LICENSE_KEY);
-        hzCfg.getMapEventJournalConfig(TWEETS).setEnabled(true);
-        hzCfg.getSerializationConfig().addSerializerConfig(
+        JetConfig jetCfg = new JetConfig();
+        Config cfg = jetCfg.getHazelcastConfig();
+        cfg.getGroupConfig().setName(JET);
+        cfg.setLicenseKey(LICENSE_KEY);
+        cfg.getSerializationConfig().addSerializerConfig(
                 new SerializerConfig()
                         .setImplementation(new PriorityQueueSerializer())
                         .setTypeClass(PriorityQueue.class));
-        HotRestartPersistenceConfig hrCfg = hzCfg.getHotRestartPersistenceConfig();
-        hrCfg.setEnabled(true).setParallelism(2).setBaseDir(new File("jet-hot-restart-" + instanceId));
-        hzCfg.getMapConfig("*").getHotRestartConfig().setEnabled(true);
-        cfg.getInternalMapConfig().getHotRestartConfig().setEnabled(true);
-        return cfg;
+        cfg.getHotRestartPersistenceConfig()
+             .setEnabled(true)
+             .setParallelism(2)
+             .setBaseDir(new File("jet-hot-restart-" + instanceId));
+        jetCfg.getInternalMapConfig().getHotRestartConfig().setEnabled(true);
+        return jetCfg;
     }
 
     public static JetInstance startJet() {
@@ -48,6 +49,6 @@ public class JetRunner {
 
     public static void main(String[] args) {
         startJet();
-        
+
     }
 }

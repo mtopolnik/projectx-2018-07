@@ -1,24 +1,21 @@
-package projectx;
+package datamodel;
 
 import java.io.Serializable;
 
-/**
- * Javadoc pending.
- */
-class Tweet implements Serializable {
+public class Tweet implements Serializable {
     private final long timestamp;
     private final String text;
 
-    Tweet(long timestamp, String text) {
+    public Tweet(long timestamp, String text) {
         this.timestamp = timestamp;
         this.text = text;
     }
 
-    long timestamp() {
+    public long timestamp() {
         return timestamp;
     }
 
-    String text() {
+    public String text() {
         return text;
     }
 }
