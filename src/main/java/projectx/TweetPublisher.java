@@ -5,7 +5,6 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.Partition;
 import com.hazelcast.core.PartitionService;
 import com.hazelcast.jet.impl.util.Util;
-import datamodel.Tweet;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -14,8 +13,8 @@ import java.util.List;
 import java.util.concurrent.locks.LockSupport;
 import java.util.stream.IntStream;
 
-import static datamodel.Constants.BOOKS_DIR;
-import static datamodel.Constants.TWEETS;
+import static projectx.Constants.BOOKS_DIR;
+import static projectx.Constants.TWEETS;
 import static java.nio.file.Files.newDirectoryStream;
 import static java.util.UUID.randomUUID;
 import static java.util.concurrent.TimeUnit.MICROSECONDS;

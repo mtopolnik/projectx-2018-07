@@ -5,15 +5,12 @@ import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.aggregate.AggregateOperation;
 import com.hazelcast.jet.aggregate.AggregateOperation1;
 import com.hazelcast.jet.config.JobConfig;
-import com.hazelcast.jet.config.ProcessingGuarantee;
 import com.hazelcast.jet.datamodel.TimestampedEntry;
 import com.hazelcast.jet.datamodel.TimestampedItem;
 import com.hazelcast.jet.function.DistributedBiConsumer;
 import com.hazelcast.jet.function.DistributedComparator;
 import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.StreamStage;
-import datamodel.Constants;
-import datamodel.Tweet;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -38,9 +35,9 @@ import static com.hazelcast.jet.pipeline.Sinks.map;
 import static com.hazelcast.jet.pipeline.Sources.mapJournal;
 import static com.hazelcast.jet.pipeline.WindowDefinition.sliding;
 import static com.hazelcast.jet.pipeline.WindowDefinition.tumbling;
-import static datamodel.Constants.PUBLISH_KEY;
-import static datamodel.Constants.SAMPLES_HOME;
-import static datamodel.Constants.TWEETS;
+import static projectx.Constants.PUBLISH_KEY;
+import static projectx.Constants.SAMPLES_HOME;
+import static projectx.Constants.TWEETS;
 import static java.util.stream.Collectors.toList;
 import static projectx.JetRunner.startJet;
 

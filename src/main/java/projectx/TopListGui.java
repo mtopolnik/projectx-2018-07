@@ -12,11 +12,11 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import static datamodel.Constants.GROUP_NAME;
-import static datamodel.Constants.GROUP_PASSWORD;
-import static datamodel.Constants.PUBLISH_KEY;
-import static datamodel.Constants.TOP_LIST;
-import static datamodel.LicenseKey.LICENSE_KEY;
+import static projectx.Constants.GROUP_NAME;
+import static projectx.Constants.GROUP_PASSWORD;
+import static projectx.Constants.PUBLISH_KEY;
+import static projectx.Constants.TOP_LIST;
+import static projectx.LicenseKey.LICENSE_KEY;
 import static java.awt.EventQueue.invokeLater;
 import static java.util.stream.Collectors.joining;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;

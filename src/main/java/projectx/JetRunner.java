@@ -5,7 +5,6 @@ import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.jet.Jet;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.config.JetConfig;
-import datamodel.Constants;
 import serializer.PriorityQueueSerializer;
 
 import java.io.File;
@@ -13,11 +12,11 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.stream.IntStream;
 
-import static datamodel.Constants.GROUP_NAME;
-import static datamodel.Constants.GROUP_PASSWORD;
-import static datamodel.Constants.TWEETS;
+import static projectx.Constants.GROUP_NAME;
+import static projectx.Constants.GROUP_PASSWORD;
+import static projectx.Constants.TWEETS;
 import static java.util.stream.Collectors.toList;
-import static datamodel.LicenseKey.LICENSE_KEY;
+import static projectx.LicenseKey.LICENSE_KEY;
 
 public class JetRunner {
 

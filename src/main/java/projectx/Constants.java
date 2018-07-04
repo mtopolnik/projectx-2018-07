@@ -1,4 +1,4 @@
-package datamodel;
+package projectx;
 
 public class Constants {
     public static final String TWEETS = "tweets";

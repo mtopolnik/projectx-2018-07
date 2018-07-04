@@ -1,4 +1,4 @@
-package datamodel;
+package projectx;
 
 import java.io.Serializable;
 

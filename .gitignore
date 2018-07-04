@@ -5,4 +5,4 @@ target
 *.iws
 jet-hot-restart*
 /.idea
-common/src/main/java/datamodel/LicenseKey.java
+src/main/java/projectx/LicenseKey.java
