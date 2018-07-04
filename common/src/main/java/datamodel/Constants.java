@@ -10,4 +10,5 @@ public class Constants {
     public static final int PUBLISHER_PORT = 5711;
     public static final String STOPWORDS = "stopwords";
     public static final String TOP_LIST = "top-list";
+    public static final String PASSWORD = "xvmb;j,.p',";
 }

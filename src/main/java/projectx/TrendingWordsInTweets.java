@@ -33,7 +33,7 @@ import static com.hazelcast.jet.impl.util.Util.checkSerializable;
 import static com.hazelcast.jet.pipeline.ContextFactories.iMapContext;
 import static com.hazelcast.jet.pipeline.JournalInitialPosition.START_FROM_OLDEST;
 import static com.hazelcast.jet.pipeline.Sinks.map;
-import static com.hazelcast.jet.pipeline.Sources.remoteMapJournal;
+import static com.hazelcast.jet.pipeline.Sources.mapJournal;
 import static com.hazelcast.jet.pipeline.WindowDefinition.sliding;
 import static com.hazelcast.jet.pipeline.WindowDefinition.tumbling;
 import static datamodel.Constants.PUBLISHER;
@@ -56,8 +56,8 @@ public class TrendingWordsInTweets {
 
         Pipeline p = Pipeline.create();
 
-        StreamStage<Tweet> tweets = p.drawFrom(remoteMapJournal(
-                TWEETS, publisherClientConfig(), mapPutEvents(), mapEventNewValue(), START_FROM_OLDEST));
+        StreamStage<Tweet> tweets = p.drawFrom(mapJournal(
+                TWEETS, mapPutEvents(), mapEventNewValue(), START_FROM_OLDEST));
 
         // Tweet{10:23:00.0, "It was the age of wisdom"}, Tweet{10:23:03.0, "It was the age of foolishness"}, ...
 

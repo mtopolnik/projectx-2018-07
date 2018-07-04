@@ -12,7 +12,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import static datamodel.Constants.PASSWORD;
 import static datamodel.Constants.PUBLISH_KEY;
+import static datamodel.LicenseKey.LICENSE_KEY;
 import static java.awt.EventQueue.invokeLater;
 import static java.util.stream.Collectors.joining;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
@@ -33,8 +35,10 @@ class TopListGui {
     }
 
     public static void main(String[] args) {
+        System.setProperty("hazelcast.logging.type", "log4j");
         ClientConfig cfg = new ClientConfig();
-        cfg.getGroupConfig().setName(JET);
+        cfg.getGroupConfig().setName(JET).setPassword(PASSWORD);
+        cfg.setLicenseKey(LICENSE_KEY);
         new TopListGui(Jet.newJetClient(cfg).getMap(TOP_LIST));
     }
 
