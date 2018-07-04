@@ -60,7 +60,7 @@ public class TrendingWordsInTweets {
                         .setTypeClass(PriorityQueue.class));
         HotRestartPersistenceConfig hrCfg = hzCfg.getHotRestartPersistenceConfig();
         hrCfg.setEnabled(true).setParallelism(2).setBaseDir(new File("jet-hot-restart-" + instanceId));
-        hzCfg.getMapConfig("*").getHotRestartConfig().setEnabled(true);
+        cfg.getInternalMapConfig().getHotRestartConfig().setEnabled(true);
         return cfg;
     }
 
