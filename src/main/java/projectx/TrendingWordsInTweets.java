@@ -1,6 +1,5 @@
 package projectx;
 
-import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.core.IMap;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.aggregate.AggregateOperation;
@@ -36,12 +35,10 @@ import static com.hazelcast.jet.pipeline.Sinks.map;
 import static com.hazelcast.jet.pipeline.Sources.mapJournal;
 import static com.hazelcast.jet.pipeline.WindowDefinition.sliding;
 import static com.hazelcast.jet.pipeline.WindowDefinition.tumbling;
-import static datamodel.Constants.PUBLISHER;
-import static datamodel.Constants.PUBLISHER_PORT;
 import static datamodel.Constants.PUBLISH_KEY;
 import static datamodel.Constants.SAMPLES_HOME;
+import static datamodel.Constants.TWEETS;
 import static java.util.stream.Collectors.toList;
-import static projectx.JetRunner.TWEETS;
 import static projectx.JetRunner.startJet;
 
 public class TrendingWordsInTweets {
@@ -101,13 +98,6 @@ public class TrendingWordsInTweets {
     private static void loadStopwordsIntoIMap(JetInstance jet) throws IOException {
         IMap<String, Integer> swMap = jet.getHazelcastInstance().getMap(Constants.STOPWORDS);
         Files.lines(Paths.get(SAMPLES_HOME + "/stopwords.txt")).forEach(sw -> swMap.put(sw, 0));
-    }
-
-    private static ClientConfig publisherClientConfig() {
-        ClientConfig clientCfg = new ClientConfig();
-        clientCfg.getGroupConfig().setName(PUBLISHER);
-        clientCfg.getNetworkConfig().addAddress("localhost:" + PUBLISHER_PORT);
-        return clientCfg;
     }
 
     private static <T> AggregateOperation1<T, ?, List<T>> topN(

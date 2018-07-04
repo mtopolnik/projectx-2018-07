@@ -12,14 +12,14 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import static datamodel.Constants.PASSWORD;
+import static datamodel.Constants.GROUP_NAME;
+import static datamodel.Constants.GROUP_PASSWORD;
 import static datamodel.Constants.PUBLISH_KEY;
+import static datamodel.Constants.TOP_LIST;
 import static datamodel.LicenseKey.LICENSE_KEY;
 import static java.awt.EventQueue.invokeLater;
 import static java.util.stream.Collectors.joining;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
-import static projectx.JetRunner.JET;
-import static datamodel.Constants.TOP_LIST;
 
 class TopListGui {
     private static final int WINDOW_X = 600;
@@ -29,7 +29,7 @@ class TopListGui {
 
     private final IMap<Object, TimestampedItem<List<String>>> topList;
 
-    TopListGui(IMap<Object, TimestampedItem<List<String>>> topList) {
+    private TopListGui(IMap<Object, TimestampedItem<List<String>>> topList) {
         this.topList = topList;
         invokeLater(this::buildFrame);
     }
@@ -37,7 +37,7 @@ class TopListGui {
     public static void main(String[] args) {
         System.setProperty("hazelcast.logging.type", "log4j");
         ClientConfig cfg = new ClientConfig();
-        cfg.getGroupConfig().setName(JET).setPassword(PASSWORD);
+        cfg.getGroupConfig().setName(GROUP_NAME).setPassword(GROUP_PASSWORD);
         cfg.setLicenseKey(LICENSE_KEY);
         new TopListGui(Jet.newJetClient(cfg).getMap(TOP_LIST));
     }

@@ -13,18 +13,18 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.stream.IntStream;
 
+import static datamodel.Constants.GROUP_NAME;
+import static datamodel.Constants.GROUP_PASSWORD;
+import static datamodel.Constants.TWEETS;
 import static java.util.stream.Collectors.toList;
 import static datamodel.LicenseKey.LICENSE_KEY;
 
 public class JetRunner {
-    static final String TWEETS = "tweets";
-    static final String JET = "jet";
-    static final int PARTITION_COUNT = 271;
 
     private static JetConfig config(int instanceId) {
         JetConfig jetCfg = new JetConfig();
         Config cfg = jetCfg.getHazelcastConfig();
-        cfg.getGroupConfig().setName(JET).setPassword(Constants.PASSWORD);
+        cfg.getGroupConfig().setName(GROUP_NAME).setPassword(GROUP_PASSWORD);
         cfg.setLicenseKey(LICENSE_KEY);
         cfg.getMapEventJournalConfig(TWEETS).setEnabled(true);
         cfg.getSerializationConfig().addSerializerConfig(
@@ -41,13 +41,13 @@ public class JetRunner {
 
     static JetInstance startJet() throws Exception {
         System.setProperty("hazelcast.logging.type", "log4j");
-        System.setProperty("hazelcast.partition.count", String.valueOf(PARTITION_COUNT));
+        System.setProperty("hazelcast.partition.count", String.valueOf(Constants.PARTITION_COUNT));
         List<JetInstance> jets = IntStream.rangeClosed(1, 2)
                                           .parallel()
                                           .mapToObj(i -> Jet.newJetInstance(config(i)))
                                           .collect(toList());
         JetInstance jet = jets.get(0);
-        new TweetPublisher(jet.getHazelcastInstance(), PARTITION_COUNT).start();
+        new TweetPublisher(jet.getHazelcastInstance(), Constants.PARTITION_COUNT).start();
         return jet;
     }
 
