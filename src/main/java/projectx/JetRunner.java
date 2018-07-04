@@ -25,6 +25,7 @@ public class JetRunner {
         JetConfig jetCfg = new JetConfig();
         Config cfg = jetCfg.getHazelcastConfig();
         cfg.getGroupConfig().setName(GROUP_NAME).setPassword(GROUP_PASSWORD);
+        cfg.getNetworkConfig().setPort(5700 + instanceId);
         cfg.setLicenseKey(LICENSE_KEY);
         cfg.getMapEventJournalConfig(TWEETS).setEnabled(true);
         cfg.getSerializationConfig().addSerializerConfig(

@@ -4,6 +4,8 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.aggregate.AggregateOperation;
 import com.hazelcast.jet.aggregate.AggregateOperation1;
+import com.hazelcast.jet.config.JobConfig;
+import com.hazelcast.jet.config.ProcessingGuarantee;
 import com.hazelcast.jet.datamodel.TimestampedEntry;
 import com.hazelcast.jet.datamodel.TimestampedItem;
 import com.hazelcast.jet.function.DistributedBiConsumer;
@@ -26,6 +28,7 @@ import static com.hazelcast.jet.Util.entry;
 import static com.hazelcast.jet.Util.mapEventNewValue;
 import static com.hazelcast.jet.Util.mapPutEvents;
 import static com.hazelcast.jet.aggregate.AggregateOperations.counting;
+import static com.hazelcast.jet.config.ProcessingGuarantee.EXACTLY_ONCE;
 import static com.hazelcast.jet.function.DistributedComparator.comparing;
 import static com.hazelcast.jet.function.DistributedFunctions.wholeItem;
 import static com.hazelcast.jet.impl.util.Util.checkSerializable;
@@ -46,7 +49,8 @@ public class TrendingWordsInTweets {
     public static void main(String[] args) throws Exception {
         JetInstance jet = startJet();
         loadStopwordsIntoIMap(jet);
-        jet.newJob(buildPipeline());
+        JobConfig jobConfig = new JobConfig().setProcessingGuarantee(EXACTLY_ONCE).setSnapshotIntervalMillis(3000);
+        jet.newJob(buildPipeline(), jobConfig);
     }
 
     static Pipeline buildPipeline() {
