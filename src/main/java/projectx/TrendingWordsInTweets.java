@@ -36,50 +36,29 @@ import static com.hazelcast.jet.pipeline.Sources.mapJournal;
 import static com.hazelcast.jet.pipeline.WindowDefinition.sliding;
 import static com.hazelcast.jet.pipeline.WindowDefinition.tumbling;
 import static java.util.stream.Collectors.toList;
+import static projectx.JetRunner.PARTITION_COUNT;
+import static projectx.JetRunner.TWEETS;
+import static projectx.JetRunner.startJet;
 import static projectx.LicenseKey.LICENSE_KEY;
 import static projectx.TweetPublisher.topN;
 
 public class TrendingWordsInTweets {
 
     static final int PUBLISH_KEY = 42;
-    static final String TWEETS = "tweets";
     static final String TOP_LIST = "top-list";
     static final String STOPWORDS = "stopwords";
     // git clone https://github.com/hazelcast/hazelcast-jet-code-samples.git
     static final String SAMPLES_HOME =
             "/Users/mtopol/dev/java/hazelcast-jet-code-samples/sample-data/src/main/resources";
 
-    private static JetConfig config(int instanceId) {
-        JetConfig cfg = new JetConfig();
-        Config hzCfg = cfg.getHazelcastConfig();
-        hzCfg.setLicenseKey(LICENSE_KEY);
-        hzCfg.getMapEventJournalConfig(TWEETS).setEnabled(true);
-        hzCfg.getSerializationConfig().addSerializerConfig(
-                new SerializerConfig()
-                        .setImplementation(new PriorityQueueSerializer())
-                        .setTypeClass(PriorityQueue.class));
-        HotRestartPersistenceConfig hrCfg = hzCfg.getHotRestartPersistenceConfig();
-        hrCfg.setEnabled(true).setParallelism(2).setBaseDir(new File("jet-hot-restart-" + instanceId));
-        hzCfg.getMapConfig("*").getHotRestartConfig().setEnabled(true);
-        return cfg;
-    }
-
     public static void main(String[] args) throws Exception {
-        int partitionCount = 271;
-        System.setProperty("hazelcast.logging.type", "log4j");
-        System.setProperty("hazelcast.partition.count", String.valueOf(partitionCount));
-
-        Pipeline pipeline = buildPipeline();
-        JetConfig cfg = config(1);
-        JetInstance jet = Jet.newJetInstance(config(2));
-        Jet.newJetInstance(cfg);
-
+        JetInstance jet = startJet();
         loadStopwordsIntoIMap(jet);
-        TweetPublisher publisher = new TweetPublisher(SAMPLES_HOME + "/books", jet, partitionCount);
+        TweetPublisher publisher = new TweetPublisher(SAMPLES_HOME + "/books", jet, PARTITION_COUNT);
         publisher.start();
         TopListGui gui = new TopListGui(jet.getMap(TOP_LIST));
         try {
-            Job job = jet.newJob(pipeline);
+            Job job = jet.newJob(buildPipeline());
             publisher.generateEvents(120);
             Thread.sleep(1000);
             job.cancel();

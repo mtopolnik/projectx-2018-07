@@ -28,7 +28,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
-import static projectx.TrendingWordsInTweets.TWEETS;
+import static projectx.JetRunner.TWEETS;
 
 class TweetPublisher extends Thread {
     private final List<String> inputKeys;
