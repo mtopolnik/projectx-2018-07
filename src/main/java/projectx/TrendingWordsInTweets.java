@@ -34,6 +34,7 @@ import static com.hazelcast.jet.pipeline.Sources.mapJournal;
 import static com.hazelcast.jet.pipeline.WindowDefinition.sliding;
 import static com.hazelcast.jet.pipeline.WindowDefinition.tumbling;
 import static java.util.stream.Collectors.toList;
+import static projectx.LicenseKey.LICENSE_KEY;
 import static projectx.TweetPublisher.topN;
 
 public class TrendingWordsInTweets {
@@ -80,6 +81,7 @@ public class TrendingWordsInTweets {
                 new SerializerConfig()
                         .setImplementation(new PriorityQueueSerializer())
                         .setTypeClass(PriorityQueue.class));
+        hzCfg.setLicenseKey(LICENSE_KEY);
         return cfg;
     }
 
