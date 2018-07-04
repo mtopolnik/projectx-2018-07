@@ -1,6 +1,7 @@
 package projectx;
 
 import com.hazelcast.config.Config;
+import com.hazelcast.config.HotRestartPersistenceConfig;
 import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.IMap;
 import com.hazelcast.jet.Jet;
@@ -13,6 +14,7 @@ import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.StreamStage;
 import serializer.PriorityQueueSerializer;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -47,14 +49,29 @@ public class TrendingWordsInTweets {
     static final String SAMPLES_HOME =
             "/Users/mtopol/dev/java/hazelcast-jet-code-samples/sample-data/src/main/resources";
 
+    private static JetConfig config(int instanceId) {
+        JetConfig cfg = new JetConfig();
+        Config hzCfg = cfg.getHazelcastConfig();
+        hzCfg.setLicenseKey(LICENSE_KEY);
+        hzCfg.getMapEventJournalConfig(TWEETS).setEnabled(true);
+        hzCfg.getSerializationConfig().addSerializerConfig(
+                new SerializerConfig()
+                        .setImplementation(new PriorityQueueSerializer())
+                        .setTypeClass(PriorityQueue.class));
+        HotRestartPersistenceConfig hrCfg = hzCfg.getHotRestartPersistenceConfig();
+        hrCfg.setEnabled(true).setParallelism(2).setBaseDir(new File("jet-hot-restart-" + instanceId));
+        hzCfg.getMapConfig("*").getHotRestartConfig().setEnabled(true);
+        return cfg;
+    }
+
     public static void main(String[] args) throws Exception {
         int partitionCount = 271;
         System.setProperty("hazelcast.logging.type", "log4j");
         System.setProperty("hazelcast.partition.count", String.valueOf(partitionCount));
 
         Pipeline pipeline = buildPipeline();
-        JetConfig cfg = config();
-        JetInstance jet = Jet.newJetInstance(cfg);
+        JetConfig cfg = config(1);
+        JetInstance jet = Jet.newJetInstance(config(2));
         Jet.newJetInstance(cfg);
 
         loadStopwordsIntoIMap(jet);
@@ -71,18 +88,6 @@ public class TrendingWordsInTweets {
             gui.shutdown();
             Jet.shutdownAll();
         }
-    }
-
-    private static JetConfig config() {
-        JetConfig cfg = new JetConfig();
-        Config hzCfg = cfg.getHazelcastConfig();
-        hzCfg.getMapEventJournalConfig(TWEETS).setEnabled(true);
-        hzCfg.getSerializationConfig().addSerializerConfig(
-                new SerializerConfig()
-                        .setImplementation(new PriorityQueueSerializer())
-                        .setTypeClass(PriorityQueue.class));
-        hzCfg.setLicenseKey(LICENSE_KEY);
-        return cfg;
     }
 
     static Pipeline buildPipeline() {

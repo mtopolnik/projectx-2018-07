@@ -4,3 +4,4 @@ target
 *.ipr
 *.iws
 src/main/java/projectx/LicenseKey.java
+jet-hot-restart*
