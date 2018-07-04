@@ -1,4 +1,4 @@
-package webinar;
+package projectx;
 
 import java.io.Serializable;
 

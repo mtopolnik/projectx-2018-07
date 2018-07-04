@@ -1,6 +1,12 @@
-package webinar;
+package projectx;
 
+import com.hazelcast.core.Cluster;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.Member;
+import com.hazelcast.core.Partition;
+import com.hazelcast.core.PartitionService;
+import com.hazelcast.jet.JetInstance;
 import com.hazelcast.jet.aggregate.AggregateOperation;
 import com.hazelcast.jet.aggregate.AggregateOperation1;
 import com.hazelcast.jet.function.DistributedBiConsumer;
@@ -13,16 +19,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.concurrent.locks.LockSupport;
+import java.util.stream.IntStream;
 
 import static com.hazelcast.jet.impl.util.Util.checkSerializable;
 import static com.hazelcast.jet.impl.util.Util.uncheckCall;
 import static java.nio.file.Files.newDirectoryStream;
+import static java.util.UUID.randomUUID;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
-import static webinar.Stash.PUBLISH_KEY;
+import static projectx.TrendingWordsInTweets.TWEETS;
 
 class TweetPublisher extends Thread {
+    private final List<String> inputKeys;
     private volatile boolean keepRunning = true;
     private volatile boolean enabled;
 
@@ -31,9 +41,13 @@ class TweetPublisher extends Thread {
 
     TweetPublisher(
             String pathToSourceFiles,
-            IMap<Object, Tweet> publishMap
+            JetInstance jet,
+            int partitionCount
     ) throws Exception {
-        this.map = publishMap;
+        this.map = jet.getMap(TWEETS);
+        this.inputKeys = IntStream.range(0, partitionCount)
+                                  .mapToObj(i -> generateKeyForPartition(jet.getHazelcastInstance(), i))
+                                  .collect(toList());
         this.lines = stream(newDirectoryStream(Paths.get(pathToSourceFiles), "*.txt").spliterator(), false)
                 .flatMap(p -> uncheckCall(() -> Files.lines(p)))
                 .iterator();
@@ -41,12 +55,16 @@ class TweetPublisher extends Thread {
 
     @Override
     public void run() {
+        Iterator<String> keyIter = inputKeys.iterator();
         while (lines.hasNext() && keepRunning) {
             if (!enabled) {
                 LockSupport.parkNanos(MILLISECONDS.toNanos(1));
                 continue;
             }
-            map.put(PUBLISH_KEY, new Tweet(System.currentTimeMillis(), lines.next()));
+            if (!keyIter.hasNext()) {
+                keyIter = inputKeys.iterator();
+            }
+            map.put(keyIter.next(), new Tweet(System.currentTimeMillis(), lines.next()));
         }
     }
 
@@ -92,5 +110,18 @@ class TweetPublisher extends Thread {
                     res.sort(comparatorReversed);
                     return res;
                 });
+    }
+
+    private static String generateKeyForPartition(HazelcastInstance hz, int partitionId) {
+        Cluster cluster = hz.getCluster();
+
+        PartitionService partitionService = hz.getPartitionService();
+        while (true) {
+            String id = randomUUID().toString();
+            Partition partition = partitionService.getPartition(id);
+            if (partition.getPartitionId() == partitionId) {
+                return id;
+            }
+        }
     }
 }
