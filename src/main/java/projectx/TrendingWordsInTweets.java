@@ -12,7 +12,6 @@ import com.hazelcast.jet.function.DistributedComparator;
 import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.StreamStage;
 import datamodel.Constants;
-import datamodel.LicenseKey;
 import datamodel.Tweet;
 
 import java.io.IOException;
@@ -107,7 +106,6 @@ public class TrendingWordsInTweets {
     private static ClientConfig publisherClientConfig() {
         ClientConfig clientCfg = new ClientConfig();
         clientCfg.getGroupConfig().setName(PUBLISHER);
-        clientCfg.setLicenseKey(LicenseKey.LICENSE_KEY);
         clientCfg.getNetworkConfig().addAddress("localhost:" + PUBLISHER_PORT);
         return clientCfg;
     }
