@@ -3,3 +3,4 @@ target
 *.iml
 *.ipr
 *.iws
+src/main/java/projectx/LicenseKey.java
