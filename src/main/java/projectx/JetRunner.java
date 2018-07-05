@@ -47,6 +47,7 @@ public class JetRunner {
                                           .mapToObj(i -> Jet.newJetInstance(config(i)))
                                           .collect(toList());
         JetInstance jet = jets.get(0);
+        System.out.println("\n\nSpecial records map size: " + jet.getMap("__jet.records").size());
         new TweetPublisher(jet.getHazelcastInstance(), Constants.PARTITION_COUNT).start();
         return jet;
     }
